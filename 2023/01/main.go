@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"unicode"
 )
 
 // NOTE: part 1 => 54450
@@ -54,6 +55,48 @@ func getDigits(position string) string {
 
 // Part 2
 var NUM_STRINGS = [...]string{"ZERO", "ONE", "TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE"}
+var STARTING_CHARS = "OTFSEN"
+
+func checkDigitStringValue(digit_string []string) int {
+	var str string = strings.Join(digit_string, "")
+
+	for i, NUM_STRING := range NUM_STRINGS {
+		if str == NUM_STRING {
+			return i
+		}
+	}
+
+	return 0
+}
+
+// TODO: Figure out if I need to just need to check no matter what as long as I find a starting char or not
+func getFirstDigit(position string) string {
+	var digit string
+	var digit_string []string
+
+	for i, c := range position {
+		if unicode.IsDigit(c) {
+			digit = string(c)
+			break
+		}
+
+		if strings.Contains(STARTING_CHARS, string(c)) {
+			digit_string = append(digit_string, string(c))
+			for j := i + 1; j < (i + 5); j++ {
+				if len(digit_string) < 3 {
+					digit_string = append(digit_string, digit_string[j])
+				}
+			}
+		}
+
+		digit_string = nil
+	}
+
+	return digit
+}
+
+// TODO: Build this out like above but reverse
+func getLastDigit(position string) string {}
 
 func getDigitsFromString(position string) int {
 	position = strings.ToUpper(position)
@@ -70,6 +113,9 @@ func getDigitsFromString(position string) int {
 
 	norm_digits := getDigits(position_norm)
 	rev_digits := getDigits(position_rev)
+
+	fmt.Println(norm_digits)
+	fmt.Println(rev_digits)
 
 	norm := getTwoDigit(norm_digits)
 	rev := getTwoDigit(rev_digits)
