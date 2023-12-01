@@ -10,6 +10,11 @@ import (
 	"strings"
 )
 
+// NOTE: part 1 => 54450
+// BUG: part 2 => 53789 is too low
+// BUG: part 2 => 60750 is too high
+
+// Part 1
 func getTwoDigit(digits string) int {
 	digits_len := len(digits)
 	digit_buf := []byte(digits)
@@ -32,6 +37,7 @@ func getTwoDigit(digits string) int {
 	return two_digit
 }
 
+// Part 1
 func getDigits(position string) string {
 	pos_digits_arr := []string{}
 
@@ -46,9 +52,40 @@ func getDigits(position string) string {
 	return strings.Join(pos_digits_arr, "")
 }
 
+// Part 2
+var NUM_STRINGS = [...]string{"ZERO", "ONE", "TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE"}
+
+func getDigitsFromString(position string) int {
+	position = strings.ToUpper(position)
+	position_norm := position
+	position_rev := position
+
+	for i := 0; i < 10; i++ {
+		position_norm = strings.Replace(position_norm, NUM_STRINGS[i], strconv.Itoa(i), -1)
+	}
+
+	for j := 9; j >= 0; j-- {
+		position_rev = strings.Replace(position_rev, NUM_STRINGS[j], strconv.Itoa(j), -1)
+	}
+
+	norm_digits := getDigits(position_norm)
+	rev_digits := getDigits(position_rev)
+
+	norm := getTwoDigit(norm_digits)
+	rev := getTwoDigit(rev_digits)
+
+	if norm > rev {
+		return norm
+	}
+
+	return rev
+}
+
 func main() {
 	f, error := os.Open("input-user.txt")
-	pos_total := 0
+	var pos_total int = 0
+
+	var isPart2 bool = true
 
 	if error != nil {
 		log.Fatal(error)
@@ -59,7 +96,11 @@ func main() {
 	scanner := bufio.NewScanner(f)
 
 	for scanner.Scan() {
-		pos_total += getTwoDigit(getDigits(scanner.Text()))
+		if !isPart2 {
+			pos_total += getTwoDigit(getDigits(scanner.Text()))
+		} else {
+			pos_total += getDigitsFromString(scanner.Text())
+		}
 	}
 
 	if error := scanner.Err(); error != nil {
